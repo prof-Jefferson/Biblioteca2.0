@@ -55,4 +55,29 @@ Entre na pasta onde será criado o projeto: cd /caminho/para/seu/projeto
 Execute o Comando para criar o projeto: dotnet new console -n Biblioteca20 --use-program-main
 Adicione o pacote responsável por manipular arquivos JSON: dotnet add package Newtonsoft.Json
 
-### 
+### 9. Estrutura de Diretórios
+Biblioteca20/
+│
+├── Biblioteca20.csproj
+├── Program.cs
+├── appsettings.json
+├── README.md
+│
+├── Data/
+│   ├── livros.json
+│   ├── clientes.json
+│   └── emprestimos.json
+│
+├── Entities/
+│   ├── Livro.cs
+│   ├── Cliente.cs
+│   ├── Pessoa.cs
+│   ├── Funcionario.cs
+│   └── Emprestimo.cs
+│
+├── Interfaces/
+│   └── IPessoa.cs
+│
+└── Services/
+    ├── GerenciadorDeArquivo.cs //vou colocar os alunos para fazer. ¬¬
+    └── Biblioteca.cs
