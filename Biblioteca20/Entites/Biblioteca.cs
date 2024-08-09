@@ -1,110 +1,56 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
-using Newtonsoft.Json;
 
-namespace Biblioteca;
-
-public class Biblioteca
+namespace Biblioteca
 {
-    public List<Cliente> clientes = new List<Cliente>();
-    public List<Livro> livros = new List<Livro>();
-    public List<Emprestimo> emprestimos = new List<Emprestimo>();
-    
-    public void EmprestarLivro(int idCliente, int idLivro)
+    public class Biblioteca
     {
-        try
+        // Propriedades com encapsulamento
+        public List<Cliente> Clientes { get; private set; } = new List<Cliente>();
+        public List<Livro> Livros { get; private set; } = new List<Livro>();
+        public List<Emprestimo> Emprestimos { get; private set; } = new List<Emprestimo>();
+
+        private readonly EmprestimoService _emprestimoService;
+        private readonly RepositorioBiblioteca _repositorio;
+
+        public Biblioteca()
         {
-            Livro livro = livros.Find(l => l.Id == idLivro && l.Disponivel == true);
-                        
-            if (livro == null)
+            _emprestimoService = new EmprestimoService(this);
+            _repositorio = new RepositorioBiblioteca(this);
+        }
+
+        public void EmprestarLivro(int idCliente, int idLivro)
+        {
+            try
             {
-                Console.WriteLine("Livro não encontrado ou indisponível.");
-                return;
+                _emprestimoService.EmprestarLivro(idCliente, idLivro);
             }
-            
-            Cliente cliente = clientes.Find(c => c.Id == idCliente);
-            
-            if (cliente == null)
+            catch (Exception ex)
             {
-                Console.WriteLine("Cliente não encontrado.");
-                return;
-            }			
-            
-            Emprestimo emprestimo = new Emprestimo			
-            {
-                Id = emprestimos.Count + 1,
-                ClienteEmprestimo = cliente,
-                LivroEmprestado = livro,
-                DataEmprestimo = DateTime.Today,
-                DataDevolucaoPrevista = DateTime.Today.AddDays(7)								
-            };
-            
-            livro.Disponivel = false;
-            emprestimos.Add(emprestimo);
-            
-            Console.WriteLine("Livro emprestado com sucesso!");
-        }	
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Ocorreu um erro ao tentar emprestar o livro: {ex.Message}");
-        }
-    }
-    
-    public void DevolverLivro(int idCliente, int idLivro)
-    {			
-        try
-        {
-            Livro livro = livros.Find(l => l.Id == idLivro);
-            
-            if (livro == null)
-            {
-                Console.WriteLine("Livro não encontrado");
-                return;
+                Console.WriteLine($"Ocorreu um erro ao tentar emprestar o livro: {ex.Message}");
             }
-            
-            Emprestimo emprestimo = emprestimos.Find(e => e.ClienteEmprestimo.Id == idCliente 
-            && e.LivroEmprestado.Id == idLivro);
-            
-            if (emprestimo == null)
+        }
+
+        public void DevolverLivro(int idCliente, int idLivro)
+        {
+            try
             {
-                Console.WriteLine("Cliente não encontrado");
-                return;
+                _emprestimoService.DevolverLivro(idCliente, idLivro);
             }
-            
-            emprestimo.LivroEmprestado.Disponivel = true;
-            emprestimo.DataDevolucao = DateTime.Today;
-            
-            Console.WriteLine("Livro devolvido com sucesso!");
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Ocorreu um erro ao tentar devolver o livro: {ex.Message}");
+            }
         }
-        catch (Exception ex)
+
+        public void SalvarDados()
         {
-            Console.WriteLine($"Ocorreu um erro ao tentar devolver o livro: {ex.Message}");
+            _repositorio.SalvarDados();
         }
-    }
-    
-    public void SalvarDados()
-    {
-        File.WriteAllText("clientes.json", JsonConvert.SerializeObject(clientes));
-        File.WriteAllText("livros.json", JsonConvert.SerializeObject(livros));
-        File.WriteAllText("emprestimos.json", JsonConvert.SerializeObject(emprestimos));
-    }
-    
-    public void CarregarDados()
-    {
-        if (File.Exists("clientes.json"))
+
+        public void CarregarDados()
         {
-            clientes = JsonConvert.DeserializeObject<List<Cliente>>(File.ReadAllText("clientes.json"));				
-        }
-        
-        if (File.Exists("livros.json"))
-        {
-            livros = JsonConvert.DeserializeObject<List<Livro>>(File.ReadAllText("livros.json"));
-        }
-        
-        if (File.Exists("emprestimos.json"))
-        {
-            emprestimos = JsonConvert.DeserializeObject<List<Emprestimo>>(File.ReadAllText("emprestimos.json"));
+            _repositorio.CarregarDados();
         }
     }
 }
