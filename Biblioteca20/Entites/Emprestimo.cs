@@ -1,6 +1,6 @@
 using System;
 
-namespace Biblioteca
+namespace Biblioteca;
 
 public class Emprestimo
 {
